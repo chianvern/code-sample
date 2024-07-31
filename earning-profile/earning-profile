@@ -1,0 +1,96 @@
+* Working with March 1992 CPS Data
+
+clear all
+set more off
+cd "/Users/chianvernwong/Downloads/Coursework/14320/14320 PS4"
+import delimited "data/PS4.csv"
+
+// Create potex (potential experience) and check its distribution
+gen potex = age - years_ed - 6
+// Set implausible to value
+replace potex = . if potex < 0
+// Summarize potex statistics and plot distribution
+sum potex
+histogram potex, title ("Potential Experience Distribution") xtitle ("Potential Experience")
+graph export "potex_distribution.png", replace	
+
+// Regress ln weekly wage on variables
+// Create potex squared and female dummies
+gen potex2 = potex^2
+gen female = sex - 1
+// Reg with and without robust SE
+eststo r1: reg ln_uwe years_ed potex potex2 female i.race
+eststo r2: reg ln_uwe years_ed potex potex2 female i.race, robust
+
+esttab r1 r2, replace	/// 
+	b(4) se(4) label nodep nonum ///
+	mtitles("(i)" "(ii:Robust SE)" ) ///
+	title("ln Weekly Wage")
+
+// Derivative of CEF
+// CEF: E[lnUwe] = beta0 + beta_potex*potex + beta_potex2*potex2 + ..(control)
+// Derivative: d_lnUwe/dpotex = beta_potex + 2*beta_potex2*potex2
+gen derivative_potex = _b[potex] + 2*_b[potex2]*potex
+	
+graph twoway (lfit derivative_potex potex), ///
+	 title("Derivative of CEF w.r.t Potex") ///
+	 xtitle("Potential Experience") ytitle("Derivative w.r.t Potex")
+graph export "Derivative of CEF.png", replace		  
+	
+// Hourly wage
+
+// Show relationship between ln_ahe and years of schooling differs between men and women
+gen fem_ed = female * years_ed
+reg ln_ahe years_ed female fem_ed potex potex2 i.race, robust
+
+// Show relationship between ln_ahe and potex differs between men and women
+gen fem_potex = female * potex
+gen fem_potex2 = female * potex2
+reg ln_ahe potex potex2 female fem_potex fem_potex2 years_ed i.race, robust
+
+// F-test to compare male and female experience profiles
+test fem_potex fem_potex2
+
+// Compute and plot experience profiles
+gen fake_potex = _n
+
+gen male_exp = _b[potex]*fake_potex + _b[potex2]*(fake_potex^2) + _cons
+gen female_exp = _b[potex]*fake_potex + _b[potex2]*(fake_potex^2) + ///
+	_b[fem_potex]*fake_potex + _b[fem_potex2]*(fake_potex^2) + ///
+	_b[female] + _cons
+
+graph twoway (scatter male_exp fake_potex if fake_potex <= 75) ///
+	 (scatter female_exp fake_potex if fake_potex <= 75),  ///
+	 legend(on order(1 "Male" 2 "Female")) ///
+	 title("Experience Profile by Male and Female") ///
+	 xtitle("Experience") ytitle("Estimated ln Hourly Wages")		
+graph export "ExperienceProfile.png", replace
+ 
+// Average marginal effects
+// Compute the expected potex for male and female, E[potex|female]
+sum potex if female == 0
+local male_potex_mean = r(mean)
+sum potex if female == 1
+local female_potex_mean = r(mean)
+
+// AME for Male
+lincom _b[potex] + 2*`male_potex_mean'*_b[potex2]
+// AME for Female
+lincom _b[potex] + _b[fem_potex] + 2*`female_potex_mean'*(_b[potex2]+_b[fem_potex2])
+
+// Test the difference between AME_male and AME_female
+// Check whether AME_female - AME_male = 0
+lincom _b[potex] + _b[fem_potex] + 2*`female_potex_mean'*(_b[potex2]+_b[fem_potex2]) - (_b[potex] + 2*`male_potex_mean'*_b[potex2])
+
+// Peak age for College and High School Grads
+// Repeat 2b regression
+reg ln_uwe years_ed potex potex2 female i.race, robust
+
+// Age for High School Grads
+// Take minimum years_ed = 12 to get the youngest age
+nlcom (-1*_b[potex])/(2*_b[potex2]) + 18
+
+// Age for College Grads, years_ed = 16
+// Take minimum years_ed = 16 to get the youngest age
+nlcom (-1*_b[potex])/(2*_b[potex2]) + 22
+nlcom (-1*_b[potex])/(2*_b[potex2])
