@@ -1,0 +1,1 @@
+This study is based on Melissa Dell's paper "The Persistent Effects of Peru's Mining MITA", using regression discontinuity to examine the long-run impacts of the mita, an extensive forced mining labor system in effect in Peru and Bolivia between 1573 and 1812.
