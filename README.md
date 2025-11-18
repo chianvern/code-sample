@@ -1,8 +1,8 @@
-This folder contains a curated selection of code samples of economic analyses I have conducted as part of my graduate coursework. These samples showcase a range of advanced econometric methods and data analysis techniques, highlighting my proficiency in both theoretical and applied economics.
+This folder contains a curated selection of code samples of economic analyses I have conducted as part of my graduate coursework. These samples showcase a range of advanced econometric methods and data analysis techniques for development economics context.
 
 #### Data Visualization
 - Utilized various visualization tools to create insightful and compelling graphical representations of complex datasets.
-- Techniques include time-series plots, scatter plots, histograms, and heat maps to uncover trends, correlations, and anomalies.
+- Techniques include time-series plots, scatter plots, and histograms to uncover trends, correlations, and anomalies.
 
 #### Regression Analysis
 - Implemented multiple linear and nonlinear regression models to explore relationships between dependent and independent variables.
@@ -17,9 +17,7 @@ This folder contains a curated selection of code samples of economic analyses I 
 - Ensured the credibility of RD results through thorough checks for manipulation around the cutoff and balance tests for covariates.
 
 #### Event Study
-- Conducted event studies to analyze the impact of significant events on economic variables, particularly in financial markets.
-- Used methodologies to measure abnormal returns and assess the significance of event impacts over different time windows.
+- Conducted event studies to analyze the impact of significant events on economic variables.
 
 #### Data Preparation
-- Executed comprehensive data cleaning processes, including handling missing values, outliers, and data normalization.
-- Employed data transformation and feature engineering techniques to enhance the quality and predictive power of the models.
+- Executed comprehensive data cleaning and data transformation processes, including handling missing values, outliers, and data standardization.
